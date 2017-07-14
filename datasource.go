@@ -3,6 +3,7 @@ package rrd
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 // Data Source Types
@@ -75,34 +76,39 @@ func newDS(dst, name string, options []func(d *ds), vals ...interface{}) DS {
 	return DS(d.String())
 }
 
+func newHeatbeatDS(dst, name string, heartbeat time.Duration, options []func(d *ds), vals ...interface{}) DS {
+	vals = append([]interface{}{int64(heartbeat / time.Second)}, vals...)
+	return newDS(dst, name, options, vals...)
+}
+
 // NewGauge returns a new GAUGE DS.
-func NewGauge(name string, heartbeat, min, max int, options ...func(d *ds)) DS {
-	return newDS(Gauge, name, options, heartbeat, min, max)
+func NewGauge(name string, heartbeat time.Duration, min, max int, options ...func(d *ds)) DS {
+	return newHeatbeatDS(Gauge, name, heartbeat, options, min, max)
 }
 
 // NewCounter returns a new COUNTER DS.
-func NewCounter(name string, heartbeat, min, max int, options ...func(d *ds)) DS {
-	return newDS(Counter, name, options, heartbeat, min, max)
+func NewCounter(name string, heartbeat time.Duration, min, max int, options ...func(d *ds)) DS {
+	return newHeatbeatDS(Counter, name, heartbeat, options, min, max)
 }
 
 // NewDCounter returns a new DCOUNTER DS.
-func NewDCounter(name string, heartbeat, min, max int, options ...func(d *ds)) DS {
-	return newDS(DCounter, name, options, heartbeat, min, max)
+func NewDCounter(name string, heartbeat time.Duration, min, max int, options ...func(d *ds)) DS {
+	return newHeatbeatDS(DCounter, name, heartbeat, options, min, max)
 }
 
 // NewDerive returns a new DERIVE DS.
-func NewDerive(name string, heartbeat, min, max int, options ...func(d *ds)) DS {
-	return newDS(Derive, name, options, heartbeat, min, max)
+func NewDerive(name string, heartbeat time.Duration, min, max int, options ...func(d *ds)) DS {
+	return newHeatbeatDS(Derive, name, heartbeat, options, min, max)
 }
 
 // NewDDerive returns a new DDERIVE DS.
-func NewDDerive(name string, heartbeat, min, max int, options ...func(d *ds)) DS {
-	return newDS(DDerive, name, options, heartbeat, min, max)
+func NewDDerive(name string, heartbeat time.Duration, min, max int, options ...func(d *ds)) DS {
+	return newHeatbeatDS(DDerive, name, heartbeat, options, min, max)
 }
 
 // NewAbsolute returns a new ABSOLUTE DS.
-func NewAbsolute(name string, heartbeat, min, max int, options ...func(d *ds)) DS {
-	return newDS(Absolute, name, options, heartbeat, min, max)
+func NewAbsolute(name string, heartbeat time.Duration, min, max int, options ...func(d *ds)) DS {
+	return newHeatbeatDS(Absolute, name, heartbeat, options, min, max)
 }
 
 // NewCompute returns a new COMPUTE DS.
