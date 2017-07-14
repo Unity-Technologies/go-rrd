@@ -65,11 +65,11 @@ func TestCmds(t *testing.T) {
 			},
 			Names: []string{"watts", "amps"},
 			Rows: []FetchRow{
-				FetchRow{
+				{
 					Time: time.Unix(1499909100, 0),
 					Data: []*float64{&f1, &f2},
 				},
-				FetchRow{
+				{
 					Time: time.Unix(1499909400, 0),
 					Data: []*float64{nil, nil},
 				},
@@ -93,13 +93,13 @@ func TestCmds(t *testing.T) {
 				Count:        2,
 			},
 			DS: []*FetchBinDS{
-				&FetchBinDS{
+				{
 					Name:    "watts",
 					Records: 1441,
 					Size:    8,
 					Endian:  binary.LittleEndian,
 				},
-				&FetchBinDS{
+				{
 					Name:    "amps",
 					Records: 1441,
 					Size:    8,
@@ -121,7 +121,7 @@ func TestCmds(t *testing.T) {
 			return
 		}
 		expected := []*Queue{
-			&Queue{Size: 10, File: "test.rrd"},
+			{Size: 10, File: "test.rrd"},
 		}
 		assert.Equal(t, expected, q)
 	}
@@ -185,18 +185,18 @@ func TestCmds(t *testing.T) {
 			return
 		}
 		expected := []*Info{
-			&Info{Key: "filename", Value: "test.rrd"},
-			&Info{Key: "rrd_version", Value: "0003"},
-			&Info{Key: "step", Value: int64(300)},
-			&Info{Key: "last_update", Value: int64(1499981928)},
-			&Info{Key: "header_size", Value: int64(1760)},
-			&Info{Key: "ds[watts].index", Value: int64(0)},
-			&Info{Key: "ds[watts].type", Value: "GAUGE"},
-			&Info{Key: "ds[watts].minimal_heartbeat", Value: int64(300)},
-			&Info{Key: "ds[watts].min", Value: float64(0)},
-			&Info{Key: "ds[watts].max", Value: float64(24000)},
-			&Info{Key: "ds[watts].last_ds", Value: "U"},
-			&Info{Key: "ds[watts].unknown_sec", Value: int64(228)},
+			{Key: "filename", Value: "test.rrd"},
+			{Key: "rrd_version", Value: "0003"},
+			{Key: "step", Value: int64(300)},
+			{Key: "last_update", Value: int64(1499981928)},
+			{Key: "header_size", Value: int64(1760)},
+			{Key: "ds[watts].index", Value: int64(0)},
+			{Key: "ds[watts].type", Value: "GAUGE"},
+			{Key: "ds[watts].minimal_heartbeat", Value: int64(300)},
+			{Key: "ds[watts].min", Value: float64(0)},
+			{Key: "ds[watts].max", Value: float64(24000)},
+			{Key: "ds[watts].last_ds", Value: "U"},
+			{Key: "ds[watts].unknown_sec", Value: int64(228)},
 		}
 		assert.Equal(t, expected, i)
 	}

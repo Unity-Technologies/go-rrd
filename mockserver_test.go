@@ -17,11 +17,11 @@ const (
 
 var (
 	commands = map[string][]string{
-		"ping":     []string{"0 PONG"},
-		"flush":    []string{"0 Nothing to flush: /test.rrd."},
-		"flushall": []string{"0 Started flush."},
-		"pending":  []string{"-1 No such file or directory."},
-		"fetch": []string{
+		"ping":     {"0 PONG"},
+		"flush":    {"0 Nothing to flush: /test.rrd."},
+		"flushall": {"0 Started flush."},
+		"pending":  {"-1 No such file or directory."},
+		"fetch": {
 			"8 Success",
 			"FlushVersion: 1",
 			"Start: 1499908800",
@@ -32,7 +32,7 @@ var (
 			"1499909100: 8.00000000000000000e+00 1.73335123697916674e+03",
 			"1499909400: nan nan",
 		},
-		"fetchbin": []string{
+		"fetchbin": {
 			"7 Success",
 			"FlushVersion: 1",
 			"Start: 1499908800",
@@ -42,16 +42,16 @@ var (
 			"DSName-watts: BinaryData 1441 8 LITTLE",
 			"DSName-amps: BinaryData 1441 8 LITTLE",
 		},
-		"forget": []string{"0 Gone!"},
-		"queue":  []string{"1 in queue.", "10 test.rrd"},
-		"help": []string{
+		"forget": {"0 Gone!"},
+		"queue":  {"1 in queue.", "10 test.rrd"},
+		"help": {
 			"4 Help for QUIT",
 			"Usage: QUIT",
 			"",
 			"Disconnect from rrdcached.",
 			"",
 		},
-		"stats": []string{
+		"stats": {
 			"9 Statistics follow",
 			"QueueLength: 0",
 			"UpdatesReceived: 1061847698",
@@ -63,11 +63,11 @@ var (
 			"JournalBytes: 0",
 			"JournalRotate: 0",
 		},
-		"update": []string{"0 errors, enqueued 1 value(s)."},
-		"wrote":  []string{"-1 Can't use 'wrote' here."},
-		"first":  []string{"0 1240782000"},
-		"last":   []string{"0 1499981700"},
-		"info": []string{
+		"update": {"0 errors, enqueued 1 value(s)."},
+		"wrote":  {"-1 Can't use 'wrote' here."},
+		"first":  {"0 1240782000"},
+		"last":   {"0 1499981700"},
+		"info": {
 			"12 Info for test.rrd follows",
 			"filename 2 test.rrd",
 			"rrd_version 2 0003",
@@ -82,9 +82,9 @@ var (
 			"ds[watts].last_ds 2 U",
 			"ds[watts].unknown_sec 1 228",
 		},
-		"create": []string{"0 RRD created OK"},
-		"batch":  []string{"0 Go ahead.  End with dot '.' on its own line."},
-		".": []string{
+		"create": {"0 RRD created OK"},
+		"batch":  {"0 Go ahead.  End with dot '.' on its own line."},
+		".": {
 			"2 errors",
 			"1 Can't use 'ping' here.",
 			"2 Can't use 'ping' here.",
