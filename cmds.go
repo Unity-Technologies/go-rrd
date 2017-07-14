@@ -108,7 +108,7 @@ func decodeTime(field, val, line string, fv reflect.Value) error {
 // fetch performs the common action between fetch and fetchbin.
 func (c *Client) fetch(cmd, filename, cf string, r interface{}, options ...interface{}) ([]string, error) {
 	args := append([]interface{}{filename}, options...)
-	lines, err := c.ExecCmd(NewCmd(cmd).WithArgs(args))
+	lines, err := c.ExecCmd(NewCmd(cmd).WithArgs(args...))
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +296,14 @@ func (c *Client) Queue(filename string) ([]*Queue, error) {
 
 // Help returns command help.
 func (c *Client) Help(cmd ...string) ([]string, error) {
-	return c.ExecCmd(NewCmd("help").WithArgs(cmd))
+	switch len(cmd) {
+	case 0:
+		return c.Exec("help")
+	case 1:
+		return c.ExecCmd(NewCmd("help").WithArgs(cmd[0]))
+	default:
+		return nil, fmt.Errorf("more than one cmd specified")
+	}
 }
 
 // Stats represents rrdcached stats.
@@ -352,7 +359,7 @@ func (c *Client) Update(filename string, value Update, values ...Update) error {
 	for i, v := range values {
 		args[i+2] = v
 	}
-	_, err := c.ExecCmd(NewCmd("update").WithArgs(args))
+	_, err := c.ExecCmd(NewCmd("update").WithArgs(args...))
 	return err
 }
 
@@ -388,7 +395,7 @@ func (c *Client) parseTime(lines []string, err error) (time.Time, error) {
 
 // Last returns the timestamp of the last update to the specified RRD.
 func (c *Client) Last(filename string) (time.Time, error) {
-	return c.parseTime(c.ExecCmd(NewCmd("last")))
+	return c.parseTime(c.ExecCmd(NewCmd("last").WithArgs(filename)))
 }
 
 // Info represents the configuration information of an RRD.
@@ -399,7 +406,7 @@ type Info struct {
 
 // Info returns the configuration information for the specified RRD.
 func (c *Client) Info(filename string) ([]*Info, error) {
-	lines, err := c.ExecCmd(NewCmd("info"))
+	lines, err := c.ExecCmd(NewCmd("info").WithArgs(filename))
 	if err != nil {
 		return nil, err
 	}
@@ -447,7 +454,7 @@ func (c *Client) Create(filename string, ds []DS, rra []RRA, options ...interfac
 	for _, v := range rra {
 		args = append(args, v)
 	}
-	_, err := c.ExecCmd(NewCmd("create").WithArgs(args))
+	_, err := c.ExecCmd(NewCmd("create").WithArgs(args...))
 	return err
 }
 
