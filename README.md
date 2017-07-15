@@ -21,12 +21,13 @@ package main
 
 import (
 	"log"
+	"time"
 
-        "github.com/multiplay/go-rrd"
+	"github.com/multiplay/go-rrd"
 )
 
 func main() {
-        c, err := rrd.NewClient("192.168.1.102:10011")
+	c, err := rrd.NewClient("192.168.1.102:10011")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +35,7 @@ func main() {
 
 	if err := c.Create(
 		"test.rrd",
-		[]DS{NewGauge("watts", 300, 0, 24000)},
+		[]DS{NewGauge("watts", time.Minute*5, 0, 24000)},
 		[]RRA{NewAverage(0.5, 1, 864000)},
 	); err != nil {
 		log.Fatal(err)
