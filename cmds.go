@@ -107,7 +107,7 @@ func decodeTime(field, val, line string, fv reflect.Value) error {
 
 // fetch performs the common action between fetch and fetchbin.
 func (c *Client) fetch(cmd, filename, cf string, r interface{}, options ...interface{}) ([]string, error) {
-	args := append([]interface{}{filename}, options...)
+	args := append([]interface{}{filename, cf}, options...)
 	lines, err := c.ExecCmd(NewCmd(cmd).WithArgs(args...))
 	if err != nil {
 		return nil, err
