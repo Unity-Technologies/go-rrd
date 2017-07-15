@@ -95,15 +95,17 @@ func TestCmds(t *testing.T) {
 			DS: []*FetchBinDS{
 				{
 					Name:    "watts",
-					Records: 1441,
+					Records: 1,
 					Size:    8,
 					Endian:  binary.LittleEndian,
+					Data:    []interface{}{float64(0)},
 				},
 				{
 					Name:    "amps",
-					Records: 1441,
+					Records: 1,
 					Size:    8,
 					Endian:  binary.LittleEndian,
+					Data:    []interface{}{float64(0)},
 				},
 			},
 		}

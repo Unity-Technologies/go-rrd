@@ -190,6 +190,7 @@ type FetchBinDS struct {
 	Records int
 	Size    int
 	Endian  binary.ByteOrder
+	Data    []interface{}
 }
 
 // FetchBin represents the response from a fetchbin command.
@@ -230,6 +231,8 @@ func newFetchBinDS(line string) (*FetchBinDS, error) {
 }
 
 // FetchBin returns the text/binary results of a fetch command with the given options.
+// TODO(steve): Given how binary data is transmitted its likely that x0a within the
+// data will break line parsing so this likely needs to read the data manually.
 func (c *Client) FetchBin(filename, cf string, options ...interface{}) (*FetchBin, error) {
 	r := &FetchBin{}
 	lines, err := c.fetch("fetchbin", filename, cf, r, options...)
@@ -241,16 +244,63 @@ func (c *Client) FetchBin(filename, cf string, options ...interface{}) (*FetchBi
 		return nil, NewInvalidResponseError("fetchbin: invalid ds count", lines...)
 	}
 
-	r.DS = make([]*FetchBinDS, len(lines))
+	// The line count is actually wrong for fetchbin. We get 2 lines per DS,
+	// so we need to manually read more.
+	for i := 0; i < r.Count; i++ {
+		if err = c.setDeadline(); err != nil {
+			return nil, err
+		}
+		if !c.scanner.Scan() {
+			return nil, c.scanErr()
+		}
+		lines = append(lines, c.scanner.Text())
+	}
+
+	r.DS = make([]*FetchBinDS, r.Count)
+
+	var j int
+	var ds *FetchBinDS
 	for i, l := range lines {
-		var err error
-		r.DS[i], err = newFetchBinDS(l)
-		if err != nil {
+		if i%2 == 0 {
+			if ds, err = newFetchBinDS(l); err != nil {
+				return nil, err
+			}
+			r.DS[j] = ds
+			j++
+		} else if err := c.readBin(ds, l); err != nil {
 			return nil, err
 		}
 	}
 
 	return r, nil
+}
+
+// readBin reads binary as specified in ds.
+func (c *Client) readBin(ds *FetchBinDS, l string) error {
+	r := strings.NewReader(l)
+	ds.Data = make([]interface{}, ds.Records)
+	switch ds.Size {
+	case 8:
+		var f float64
+		for i := range ds.Data {
+			if err := binary.Read(r, ds.Endian, &f); err != nil {
+				return err
+			}
+			ds.Data[i] = f
+		}
+	case 4:
+		var f float32
+		for i := range ds.Data {
+			if err := binary.Read(r, ds.Endian, &f); err != nil {
+				return err
+			}
+			ds.Data[i] = f
+		}
+	default:
+		// We don't use l here as its binary data.
+		return NewInvalidResponseError(fmt.Sprintf("fetchbin: invalid ds size %v", ds.Size), "")
+	}
+	return nil
 }
 
 // Forget requests rrdcached remove filename from the cache.
