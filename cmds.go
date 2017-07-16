@@ -1,6 +1,7 @@
 package rrd
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"reflect"
@@ -231,8 +232,6 @@ func newFetchBinDS(line string) (*FetchBinDS, error) {
 }
 
 // FetchBin returns the text/binary results of a fetch command with the given options.
-// TODO(steve): Given how binary data is transmitted its likely that x0a within the
-// data will break line parsing so this likely needs to read the data manually.
 func (c *Client) FetchBin(filename, cf string, options ...interface{}) (*FetchBin, error) {
 	r := &FetchBin{}
 	lines, err := c.fetch("fetchbin", filename, cf, r, options...)
@@ -244,30 +243,37 @@ func (c *Client) FetchBin(filename, cf string, options ...interface{}) (*FetchBi
 		return nil, NewInvalidResponseError("fetchbin: invalid ds count", lines...)
 	}
 
-	// The line count is actually wrong for fetchbin. We get 2 lines per DS,
+	// The line count is actually wrong for fetchbin. We get at least 2 lines per DS,
 	// so we need to manually read more.
-	for i := 0; i < r.Count; i++ {
-		if err = c.setDeadline(); err != nil {
-			return nil, err
-		}
-		if !c.scanner.Scan() {
-			return nil, c.scanErr()
-		}
-		lines = append(lines, c.scanner.Text())
+	if err = c.ensureLines(&lines, r.Count*2); err != nil {
+		return nil, err
 	}
 
-	r.DS = make([]*FetchBinDS, r.Count)
-
-	var j int
 	var ds *FetchBinDS
-	for i, l := range lines {
-		if i%2 == 0 {
-			if ds, err = newFetchBinDS(l); err != nil {
+	r.DS = make([]*FetchBinDS, r.Count)
+	for i := 0; i < r.Count; i++ {
+		if err = c.ensureLines(&lines, 2); err != nil {
+			return nil, err
+		}
+
+		if ds, err = newFetchBinDS(lines[0]); err != nil {
+			return nil, err
+		}
+		r.DS[i] = ds
+
+		// Rebuild data from lines
+		data := []byte(lines[1])
+		lines = lines[2:]
+		for wanted := ds.Records * ds.Size; len(data) < wanted; {
+			if err := c.ensureLines(&lines, 1); err != nil {
 				return nil, err
 			}
-			r.DS[j] = ds
-			j++
-		} else if err := c.readBin(ds, l); err != nil {
+			data = append(data, '\n')
+			data = append(data, lines[0]...)
+			lines = lines[1:]
+		}
+
+		if err := c.readBin(ds, data); err != nil {
 			return nil, err
 		}
 	}
@@ -275,9 +281,26 @@ func (c *Client) FetchBin(filename, cf string, options ...interface{}) (*FetchBi
 	return r, nil
 }
 
+// ensureLines ensures there's at least cnt in lines.
+func (c *Client) ensureLines(lines *[]string, cnt int) error {
+	for len(*lines) < cnt {
+		if err := c.setDeadline(); err != nil {
+			return err
+		}
+
+		if !c.scanner.Scan() {
+			return c.scanErr()
+		}
+
+		*lines = append(*lines, c.scanner.Text())
+	}
+
+	return nil
+}
+
 // readBin reads binary as specified in ds.
-func (c *Client) readBin(ds *FetchBinDS, l string) error {
-	r := strings.NewReader(l)
+func (c *Client) readBin(ds *FetchBinDS, data []byte) error {
+	r := bytes.NewReader(data)
 	ds.Data = make([]interface{}, ds.Records)
 	switch ds.Size {
 	case 8:
