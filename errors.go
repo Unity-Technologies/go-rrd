@@ -26,6 +26,18 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("%v (%v)", e.Msg, e.Code)
 }
 
+// IsNotExist returns true if err represents a failure due to a non-existing rrd, false otherwise.
+func IsNotExist(err error) bool {
+	err2, ok := err.(*Error)
+	return ok && err2.Code == -1 && strings.HasPrefix(err2.Msg, "No such file:")
+}
+
+// IsIllegalUpdate returns true if err represents a failure due to an illegal update, false otherwise.
+func IsIllegalUpdate(err error) bool {
+	err2, ok := err.(*Error)
+	return ok && err2.Code == -1 && strings.HasPrefix(err2.Msg, "illegal attempt to update using time")
+}
+
 // InvalidResponseError is the error returned when the response data was invalid.
 type InvalidResponseError struct {
 	Reason string
