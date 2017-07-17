@@ -29,6 +29,7 @@ func TestErrorHelpers(t *testing.T) {
 		err  error
 		f    func(error) bool
 	}{
+		{"exists", NewError(-1, "RRD Error: creating '/test.rrd': File exists"), IsExist},
 		{"not-exists", NewError(-1, "No such file: /test-missing.rrd"), IsNotExist},
 		{"illegal-update", NewError(-1, "illegal attempt to update using time 1499968801.000000 when last update time is 1499968801.000000 (minimum one second step)"), IsIllegalUpdate},
 	}

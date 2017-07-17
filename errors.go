@@ -26,6 +26,12 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("%v (%v)", e.Msg, e.Code)
 }
 
+// IsExist returns true if err represents a failure due to a existing rrd, false otherwise.
+func IsExist(err error) bool {
+	err2, ok := err.(*Error)
+	return ok && err2.Code == -1 && strings.Contains(err2.Msg, "File exists")
+}
+
 // IsNotExist returns true if err represents a failure due to a non-existing rrd, false otherwise.
 func IsNotExist(err error) bool {
 	err2, ok := err.(*Error)

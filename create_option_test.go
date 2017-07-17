@@ -19,7 +19,7 @@ func TestCreateOption(t *testing.T) {
 		{"start", Start(now), fmt.Sprintf("-b %v", now.Unix())},
 		{"source", Source("test.rrd"), "-r test.rrd"},
 		{"template", Template("test.rrd"), "-t test.rrd"},
-		{"overwrite", Overwrite(), "-O"},
+		{"no-overwrite", NoOverwrite(), "-O"},
 	}
 
 	for _, tc := range tests {

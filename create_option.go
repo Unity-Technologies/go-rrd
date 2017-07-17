@@ -18,8 +18,8 @@ func Start(start time.Time) CreateOption {
 	return CreateOption(fmt.Sprintf("-b %v", start.Unix()))
 }
 
-// Overwrite returns a new create overwrite option.
-func Overwrite() CreateOption {
+// NoOverwrite returns a new create no overwrite option.
+func NoOverwrite() CreateOption {
 	return CreateOption("-O")
 }
 
