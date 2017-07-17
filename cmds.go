@@ -519,8 +519,11 @@ func (c *Client) Info(filename string) ([]*Info, error) {
 }
 
 // Create creates the RRD according to the supplied parameters.
-func (c *Client) Create(filename string, ds []DS, rra []RRA, options ...interface{}) error {
-	args := append([]interface{}{filename}, options...)
+func (c *Client) Create(filename string, ds []DS, rra []RRA, options ...CreateOption) error {
+	args := []interface{}{filename}
+	for _, v := range options {
+		args = append(args, v)
+	}
 	for _, v := range ds {
 		args = append(args, v)
 	}
