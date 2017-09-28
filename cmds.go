@@ -169,7 +169,7 @@ func (c *Client) Fetch(filename, cf string, options ...interface{}) (*Fetch, err
 			Data: make([]*float64, len(r.Names)),
 		}
 		for i, val := range strings.Split(strings.TrimSpace(parts[1]), " ") {
-			if val == "nan" {
+			if val == "nan" || val == "-nan" {
 				continue
 			}
 

@@ -30,7 +30,7 @@ var (
 			"DSCount: 2",
 			"DSName: watts amps",
 			"1499909100: 8.00000000000000000e+00 1.73335123697916674e+03",
-			"1499909400: nan nan",
+			"1499909400: nan -nan",
 		},
 		"fetchbin": {
 			"7 Success",
